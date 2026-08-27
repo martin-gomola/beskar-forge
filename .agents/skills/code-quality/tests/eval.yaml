@@ -1,0 +1,21 @@
+skill: code-quality
+cases:
+  - name: high_confidence_review
+    prompt: "Review a diff that hardcodes a production API token in frontend/src/config.ts."
+    rubric:
+      expectations:
+        - "Treats the exposed credential as a merge-blocking security finding."
+        - "Recommends removing it from source and rotating the exposed value."
+        - "Does not dilute the finding with unrelated style advice."
+  - name: test_first_endpoint
+    prompt: "Use TDD to add an endpoint that calculates a monthly total."
+    rubric:
+      expectations:
+        - "Starts with one failing behavior test through the FastAPI public interface."
+        - "Implements the smallest passing vertical slice before adding another case."
+  - name: no_invented_findings
+    prompt: "Review a one-line copy correction in README.md."
+    rubric:
+      expectations:
+        - "Does not invent correctness or security findings."
+        - "Scopes validation to the documentation-only change."

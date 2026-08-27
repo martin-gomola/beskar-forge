@@ -1,0 +1,25 @@
+# Cursor Project Rules
+
+Project guide is in [`AGENTS.md`](./AGENTS.md). Cursor reads `AGENTS.md`
+natively for shared agent context (architecture, workflow, conventions,
+and repository skills).
+
+This file holds only Cursor-specific behavior overrides that don't
+belong in `AGENTS.md`.
+
+## Documentation placement (Cursor enforces this)
+
+When creating new documentation files (`.md`):
+
+1. **Project documentation** → `/docs/`
+   (e.g. `docs/DEPLOYMENT_GUIDE.md`, `docs/API_DOCUMENTATION.md`)
+2. **Root-level exceptions only**:
+   - `README.md` (main project readme)
+   - `CHANGELOG.md` (version history)
+   - `CONTRIBUTING.md` (contribution guidelines)
+   - `LICENSE.md` (project license)
+   - `AGENTS.md` / `CLAUDE.md` / `GEMINI.md` (AI agent guides)
+3. **Never** create documentation at project root unless it's one of
+   the exceptions above.
+4. Use descriptive UPPERCASE filenames for `/docs/`.
+5. Update `README.md` and `docs/README.md` when adding important docs.

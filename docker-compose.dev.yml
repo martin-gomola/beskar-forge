@@ -1,0 +1,48 @@
+# Development overrides for faster development
+#
+# Key differences from production:
+# - Frontend: Configurable host port 3020 (Vite) instead of nginx
+# - Backend: Live reload enabled via --reload
+# - Volumes: Mounted for hot reload
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: development
+    user: root
+    volumes:
+      - ./backend:/app
+      - ./backend/data:/app/data
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8060", "--reload"]
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: development
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+    # Replace the production nginx port mapping. Development exposes only Vite.
+    ports: !override
+      - "${DEV_FRONTEND_PORT:-3020}:5173"
+    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+    environment:
+      - NODE_ENV=development
+      # Browser-facing URL. Docker's `backend` hostname is not resolvable by
+      # the user's browser, so expose the configured host port here.
+      - VITE_API_URL=http://localhost:${BACKEND_PORT:-8062}
+      # Vite itself runs inside Compose and can use the service hostname.
+      - VITE_DEV_API_TARGET=http://backend:8060
+      - CHOKIDAR_USEPOLLING=true
+      - CHOKIDAR_INTERVAL=300
+      - VITE_HMR_HOST=localhost
+      - VITE_HMR_CLIENT_PORT=${DEV_FRONTEND_PORT:-3020}
+      - VITE_USE_POLLING=true
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:5173/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s

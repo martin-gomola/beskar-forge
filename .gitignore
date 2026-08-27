@@ -1,0 +1,59 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+
+# Node
+node_modules/
+
+# Environment & secrets
+.env
+config/.env
+.mcp.json
+secrets.toml
+
+# IDE & editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing & coverage
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# Caches
+.cache/
+.ruff_cache/
+.mypy_cache/
+
+# Logs
+*.log
+logs/
+
+# Local development
+tmp/
+backups/
+NOTES.md
+
+# Build artifacts
+frontend/dist/
+frontend/stats.html
+backend/data/*.db
+
+# Cursor
+.cursorignore
+.cursorindexingignore
+.omx
+.mythosaur/

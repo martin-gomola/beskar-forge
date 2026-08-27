@@ -1,0 +1,17 @@
+skill: code-quality
+should_trigger:
+  - "Review my changes before I open a PR"
+  - "Use TDD to add this FastAPI endpoint"
+  - "Verify this bug exists and fix it with a regression test"
+  - "Check whether this React change is safe to ship"
+  - "The frontend build is failing after my change"
+  - "Audit this diff for security and correctness"
+should_not_trigger:
+  - "Choose REST versus GraphQL for a future public interface"
+  - "Deploy this application to production"
+  - "Fix the iPhone safe-area layout in our installed PWA"
+  - "Rewrite this README introduction"
+  - "Add a database because we may need one later"
+threshold:
+  min_tpr: 0.85
+  max_fpr: 0.10

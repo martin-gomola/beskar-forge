@@ -1,0 +1,17 @@
+skill: pwa-app-design
+should_trigger:
+  - "Make this starter installable as a PWA"
+  - "Fix the white bar under our iPhone home-screen app"
+  - "Update the manifest, icons, and theme color"
+  - "The service worker keeps serving the old deployment"
+  - "Audit Add to Home Screen and cold-start behavior"
+  - "Content overlaps the notch and home indicator"
+should_not_trigger:
+  - "Fix the spacing on this desktop-only button"
+  - "Add a FastAPI calculation endpoint"
+  - "Review this backend diff before merge"
+  - "Deploy the Docker containers"
+  - "Add a Postgres database"
+threshold:
+  min_tpr: 0.85
+  max_fpr: 0.10

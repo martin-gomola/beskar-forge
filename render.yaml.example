@@ -1,0 +1,83 @@
+# Render.com Blueprint (free tier)
+#
+# Copy to render.yaml, replace every <project> with your slug, then push to
+# git. In the Render dashboard: New + > Blueprint > pick this repo.
+#
+# This template gives you:
+#   - Static frontend served from Render's CDN (clean public URL)
+#   - Docker backend on a free web service (cold-starts after 15 min idle)
+#   - Cross-origin wiring (CORS_ORIGINS, TRUSTED_HOSTS) preconfigured
+#   - Secrets via `sync: false` (declared here, value lives in dashboard)
+#
+# Read docs/RENDER.md before changing this file. Several lines are
+# load-bearing in non-obvious ways (e.g. `plan: free` is REQUIRED on
+# Docker services but REJECTED on static sites).
+
+services:
+  # ---------------------------------------------------------------------------
+  # Backend: Docker FastAPI on Render's free web-service tier.
+  # Gets the suffixed URL so the frontend can keep the clean one.
+  # ---------------------------------------------------------------------------
+  - type: web
+    name: <project>-api
+    runtime: docker
+    plan: free                       # REQUIRED on Docker web services
+    region: frankfurt                # Choose the region closest to your users
+    rootDir: backend
+    # Paths below are relative to rootDir.
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    autoDeployTrigger: commit
+    envVars:
+      # Browser origins allowed to call this API (scheme + host, no trailing /).
+      # Must include the frontend's onrender.com URL plus any custom domain.
+      - key: CORS_ORIGINS
+        value: https://<project>.onrender.com
+
+      # Bare hostnames trusted by FastAPI's TrustedHostMiddleware.
+      # MUST include this API's own hostname so health checks succeed.
+      - key: TRUSTED_HOSTS
+        value: <project>-api.onrender.com
+
+      - key: LOG_LEVEL
+        value: INFO
+
+      # Secrets: declare here so the blueprint requires them, but Render
+      # keeps the value in the dashboard. Never commit real keys.
+      # - key: APP_API_KEY
+      #   sync: false
+      # - key: SOME_THIRD_PARTY_API_KEY
+      #   sync: false
+
+  # ---------------------------------------------------------------------------
+  # Frontend: Vite static site on Render's CDN. Always free, globally served.
+  # DO NOT add `plan: free` (rejected) or `region` (rejected) here.
+  # ---------------------------------------------------------------------------
+  - type: web
+    name: <project>
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    autoDeployTrigger: commit
+    envVars:
+      # Build-time API base URL. Read by frontend/src/utils/api.ts so every
+      # axios/fetch call hits the cross-origin API, not the static site.
+      - key: VITE_API_URL
+        value: https://<project>-api.onrender.com
+
+    # SPA fallback so client-side routes survive a hard reload.
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+    # Long-cache hashed assets, never cache the entry HTML.
+    headers:
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      - path: /index.html
+        name: Cache-Control
+        value: no-store

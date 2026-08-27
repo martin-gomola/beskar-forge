@@ -1,0 +1,21 @@
+skill: pwa-app-design
+cases:
+  - name: preserve_existing_rollout
+    prompt: "Change the PWA icon and app name without breaking updates."
+    rubric:
+      expectations:
+        - "Inspects the manifest, HTML metadata, icons, and existing service-worker build stamping."
+        - "Runs the frontend production build and checks emitted PWA artifacts."
+        - "Does not replace the existing service worker without evidence."
+  - name: ios_cold_start
+    prompt: "The installed iPhone app has a white bar after a cold launch."
+    rubric:
+      expectations:
+        - "Inspects viewport mode, root paint, height, and safe-area ownership."
+        - "Requires a physical-device force-quit and cold-launch check before claiming success."
+  - name: no_api_cache_by_default
+    prompt: "Cache every API response in the service worker so the app works offline."
+    rubric:
+      expectations:
+        - "Rejects blanket API caching without freshness, invalidation, and conflict behavior."
+        - "Proposes the smallest explicit offline contract for the affected data."
