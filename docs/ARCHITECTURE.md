@@ -1,19 +1,22 @@
 # Architecture
 
-Beskar Forge is a PWA-first starter for a single installable application with a small Python backend.
+Beskar Forge is a PWA-first starter for focused applications, including field
+tools that must keep working when connectivity is unreliable.
 
 The current target shape is:
 
 - a React + Vite installable frontend
 - a FastAPI backend for calculations, API integration, and simple local data
+- an IndexedDB local store and outbox for offline feature data
+- a small SQLite-backed synchronization boundary for the reference workflow
 - an Nginx production edge for static assets and API proxying
 - a service worker for deploy-and-reload behavior
 - a Docker-capable deployment/control host
 
 The full Garden Planner reference application is maintained separately at
 https://github.com/martin-gomola/garden-planner. This repository keeps only the
-smallest connected starter so copies have a working baseline without carrying
-app-specific domain code.
+smallest useful offline-first reference workflow so copies have a working
+baseline without carrying a large app-specific domain.
 
 Typical applications built from the template include:
 
@@ -27,7 +30,7 @@ Typical applications built from the template include:
 
 ```mermaid
 flowchart LR
-    User[Browser / Operator]
+    User[Browser / Field operator]
     SW[Service Worker<br/>frontend/public/sw.js]
 
     subgraph Host["Deployment Host"]
@@ -37,6 +40,7 @@ flowchart LR
     subgraph Platform["Beskar Forge Platform"]
         subgraph Frontend["Shared Frontend Shell"]
             Vite[React + Vite App<br/>frontend/src]
+            Local[(IndexedDB<br/>local notes + outbox)]
             Nginx[Nginx Container<br/>frontend/nginx.conf]
         end
 
@@ -44,7 +48,7 @@ flowchart LR
             API[FastAPI App<br/>backend/main.py]
             Routes[API Routers<br/>backend/api/routes.py]
             Config[Settings + Security<br/>backend/config/settings.py]
-            Data[(Mounted Data<br/>backend/data)]
+            Data[(Mounted SQLite<br/>backend/data)]
         end
 
         subgraph Tooling["Tooling"]
@@ -58,6 +62,7 @@ flowchart LR
     User -->|API/docs: :8062| API
     User <-->|update checks + cached assets| SW
     SW --> Vite
+    Vite --> Local
     Nginx -->|/api proxy| API
     API --> Routes
     API --> Config
@@ -80,6 +85,7 @@ Shared platform concerns live here:
 
 - frontend shell and shared navigation
 - backend control APIs
+- local-first feature storage and synchronization contracts
 - auth and request protection patterns
 - deployment workflow
 - health checks
@@ -109,7 +115,8 @@ App-specific concerns should be migrated in gradually and kept modular so they c
 ### Frontend
 
 - `frontend/src/App.tsx` renders the platform shell and the update banner.
-- `frontend/src/components/StarterScreen.tsx` is the minimal mobile-first screen and checks the backend through the shared API URL helper.
+- `frontend/src/features/field-notes/FieldNotesScreen.tsx` demonstrates local-first capture, sync status, and conflict recovery.
+- `frontend/src/features/field-notes/fieldNotesStore.ts` owns IndexedDB records, the mutation outbox, the sync cursor, and device identity.
 - `frontend/src/main.tsx` bootstraps React and registers the service worker in production.
 - `frontend/src/hooks/useServiceWorkerUpdate.ts` detects a waiting worker, applies accepted updates, and guards cross-tab reloads.
 - `frontend/public/sw.js` manages the app-shell cache and user-controlled update activation.
@@ -121,6 +128,7 @@ App-specific concerns should be migrated in gradually and kept modular so they c
 - `backend/app_factory.py` creates the FastAPI app, installs middleware, and wires routes.
 - `backend/api/routes.py` exposes the root, health, and version endpoints used by the starter and by deployment checks.
 - `backend/config/settings.py` centralizes environment-driven configuration and request-safety helpers.
+- `backend/api/field_notes.py` applies idempotent note mutations, returns cursor-based changes, and exposes optimistic conflicts.
 - Security middleware in `backend/security.py` combines:
   - CORS validation
   - trusted-host checks
@@ -143,9 +151,9 @@ Recommended sequence:
 2. Decide whether it needs:
    - frontend-only behavior
    - a backend calculation or external API call
-   - simple persistence under `backend/data`
+   - local-first persistence and synchronization
 3. Reuse existing platform conventions for health checks, env handling, versioning, and deployment.
-4. Add routing, a database, or background work only when a real feature requires it.
+4. Add routing, a server database, or background work only when a real feature requires it.
 5. Keep each added dependency justified by observable behavior and covered by validation.
 
 ## Request Flow
@@ -157,6 +165,23 @@ Recommended sequence:
 3. API requests under `/api/` are proxied from Nginx to the FastAPI backend.
 4. FastAPI applies security middleware and route handling before responding.
 5. Application routes can call focused calculation or storage modules behind the shared backend surface.
+
+## Offline field workflow
+
+The reference field-notes flow has two data owners:
+
+- IndexedDB owns the immediate user experience. Notes are written locally before any network request.
+- SQLite owns the self-hosted server copy. The sync API applies mutations by client idempotency key and optimistic version.
+
+The page drains its outbox on startup, foregrounding, reconnect, and explicit
+user request. The service worker caches only application assets; it does not
+own domain data or silently cache API responses.
+
+An update is considered safe only when local data survives an app restart and
+service-worker activation. Server conflicts remain visible until the operator
+chooses the local or server copy. Render's free backend remains demo-only for
+this workflow because its filesystem is ephemeral; use a persistent deployment
+for production field data.
 
 `/api` is a cross-layer invariant shared by the frontend client, Nginx,
 FastAPI, the service worker, tests, and documentation. It is not an environment

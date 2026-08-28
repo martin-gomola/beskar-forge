@@ -20,10 +20,11 @@ Please complete the setup for me:
    PWA manifest values, and agent-guide placeholders with values for my app.
 4. Keep the existing mobile-first PWA shell, service-worker update flow,
    frontend API helper, FastAPI security defaults, Docker workflow, and tests.
-5. Keep the starter screen working until my first frontend and backend flow
-   replaces it. Use the Garden Planner reference application at
-   https://github.com/martin-gomola/garden-planner when you need an example of
-   a fuller feature built from this template.
+5. Keep the included Field Notes workflow working until my first frontend and
+   backend flow replaces it. Reuse its local-first storage and synchronization
+   patterns when the feature needs offline data. Use the Garden Planner
+   reference application at https://github.com/martin-gomola/garden-planner
+   when you need an example of a fuller feature built from this template.
 6. Create config/.env from config/env.example. Do not add secrets.
 7. Run make check, then make setup.
 8. Confirm that the frontend, backend health endpoint, API documentation, and
@@ -36,7 +37,7 @@ Please complete the setup for me:
 After setup, describe the first user action you want to build. For example:
 
 ```text
-Replace the starter screen with a tip calculator. The user enters the bill,
+Replace the Field Notes screen with a tip calculator. The user enters the bill,
 tip percentage, and number of people. Send the values to FastAPI and show the
 per-person amount.
 ```

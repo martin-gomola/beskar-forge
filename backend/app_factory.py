@@ -12,7 +12,7 @@ from slowapi.middleware import SlowAPIMiddleware
 from slowapi.util import get_remote_address
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
-from api import routes
+from api import field_notes, routes
 from config import settings
 from config.settings import APP_VERSION
 from security import register_security_middleware
@@ -80,6 +80,7 @@ def create_app() -> FastAPI:
 
     app.include_router(routes.system_router)
     app.include_router(routes.api_router, prefix=settings.API_PREFIX)
+    app.include_router(field_notes.router, prefix=settings.API_PREFIX)
     # Add your route modules here:
     # app.include_router(your_module.router, prefix=settings.API_PREFIX)
 

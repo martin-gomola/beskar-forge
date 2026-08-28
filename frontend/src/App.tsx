@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { StarterScreen } from './components/StarterScreen'
+import { FieldNotesScreen } from './features/field-notes/FieldNotesScreen'
 import { PLATFORM_NAME, PLATFORM_STACK_LABEL } from './config/platform'
 import { BackendWakingOverlay, useToast } from './components/common'
 import { useDocumentTitle } from './hooks/useDocumentTitle'
@@ -55,7 +55,7 @@ function App() {
       )}
 
       <BackendWakingOverlay />
-      <StarterScreen />
+      <FieldNotesScreen />
 
       <div className="starter-footer">
         <span>{PLATFORM_STACK_LABEL}</span>

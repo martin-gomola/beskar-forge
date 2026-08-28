@@ -22,7 +22,7 @@ lifecycle without adding another package.
 | Install identity | Stable manifest `id: /`, `standalone` display, 192/512 PNG icons, scalable maskable SVG, 180px Apple icon |
 | Offline shell | Built HTML, JavaScript, CSS, manifest, and icons are precached |
 | API behavior | `/api/*` stays network-only; feature code defines any offline fallback |
-| Application state | The starter has no durable domain state; add storage only with a defined ownership and recovery contract |
+| Application state | Field Notes stores domain records and its outbox in IndexedDB; the feature owns schema versioning and recovery |
 | Update safety | A new worker installs and waits; the old cache remains until the user chooses **Update now** |
 | Multi-tab behavior | Activation triggers one guarded reload in every controlled tab so tabs do not keep mixed app versions |
 | Update checks | The browser checks hourly and when a visible app is overdue for a check |
@@ -50,13 +50,19 @@ reply; add a channel only if a future command needs a response.
 The shell and application data have different owners:
 
 - The service worker caches built app files.
-- The starter health check remains network-only and reports a retryable error
-  when the backend cannot be reached.
-- Feature code owns any local state, its versioning, and its offline conflict
-  behavior.
+- Field Notes owns local records and queued mutations in IndexedDB.
+- The FastAPI sync endpoint owns the server copy, idempotency keys, cursors,
+  tombstones, and optimistic conflict responses.
+- Feature code owns local schema versioning, offline status, and conflict
+  recovery. The service worker does not cache API responses.
 
 For sensitive or multi-user data, use an authenticated backend design with an
 explicit storage and recovery contract.
+
+The reference workflow syncs through `/api/field-notes/sync` when the app starts,
+returns to the foreground, regains connectivity, or receives an explicit
+**Sync now** action. A note is never presented as synced until the server has
+acknowledged its mutation.
 
 ## Customize a new project
 
@@ -99,13 +105,22 @@ surface such as a map or video, then handle every safe-area inset yourself.
 ### Offline cold start on a physical phone
 
 1. Open the deployed HTTPS URL and add it to the home screen.
-2. Confirm the starter screen loads and reports the backend health state.
+2. Confirm the Field Notes screen loads and reports its local and network state.
 3. Force-close the installed app.
 4. Disable network access and launch it from the home screen.
-5. Confirm the starter screen returns and the browser shell remains usable.
+5. Confirm the Field Notes screen returns and the browser shell remains usable.
 6. Rotate portrait to landscape and back; check the notch, keyboard, and home
    indicator areas.
 7. Restore the network and confirm the health check can be retried.
+
+### Offline field-notes proof
+
+1. Open the app once while connected so the shell and local database are initialized.
+2. Disable network access and create, edit, and delete a note.
+3. Close and reopen the installed app; confirm the remaining note is still present.
+4. Restore network access and choose **Sync now**.
+5. Confirm queued notes become **Synced** and a repeated request does not duplicate them.
+6. If two devices edit the same note, confirm the app shows **Needs review** and offers both copies.
 
 A desktop responsive viewport is useful, but it does not replace this physical
 iPhone check.

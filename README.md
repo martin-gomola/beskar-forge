@@ -16,10 +16,33 @@
 
 </div>
 
-The repository ships a small connected starter screen so a fresh copy has a
-working frontend-to-backend request immediately. The fuller Garden Planner
-application now lives in its own repository as a reference build:
+The repository ships a small offline-first field-notes workflow so a fresh
+copy demonstrates local persistence, queued changes, and a working
+frontend-to-backend sync request immediately. The fuller Garden Planner
+application now lives in its own repository as another reference build:
 [github.com/martin-gomola/garden-planner](https://github.com/martin-gomola/garden-planner).
+
+## Why this exists
+
+I kept needing a starting point for small applications: a mobile
+interface, a working backend connection, safe configuration, a deployable
+container, and a PWA update path. Rebuilding that foundation for every idea
+made it harder to spend time on the actual user problem.
+
+Beskar Forge turns that foundation into a starter that I can reuse with a
+coding agent or adapt by hand. It is intentionally not a full-stack framework
+or a universal SaaS platform. It is a practical baseline for applications such
+as planners, calculators, internal tools, and homelab utilities.
+
+It keeps the foundation visible: the defaults, trade-offs, and deployment and
+update details that are easy to overlook when starting a new project.
+
+The path from an application idea to a focused, installable tool is:
+
+**agent prompt → focused workflow → PWA → API → Docker deployment**
+
+It fits small applications where speed and portability matter more than
+framework complexity.
 
 ## What you need
 
@@ -66,16 +89,16 @@ The command explains what is missing or which port is already in use.
 Run `make help` to see this short list in the terminal. Run `make help-all` for
 less common commands.
 
-## The starter app
+## The reference workflow
 
-The starter screen shows the platform boundary without adding app-specific
-domain code:
+The included Field Notes workflow demonstrates the platform boundary with a
+small, useful domain flow:
 
-- an installable PWA with update handling;
-- a mobile-first interface with visible keyboard focus;
-- a frontend request to `GET /api/health` through the shared API helper;
-- loading, connected, error, and retry states;
-- a FastAPI health endpoint with no database or extra service.
+- an installable PWA with user-controlled update handling;
+- local-first note capture backed by IndexedDB;
+- an outbox that queues creates, edits, and deletes while offline;
+- idempotent FastAPI synchronization backed by SQLite;
+- visible online, offline, queued, synced, and conflict states.
 
 For a complete feature built from this template, see the [Garden Planner
 reference application](https://github.com/martin-gomola/garden-planner).
@@ -95,7 +118,8 @@ If you prefer to customize it yourself:
 1. Change the app name and description in
    `frontend/src/config/platform.ts`, `frontend/index.html`, and
    `frontend/public/manifest.json`.
-2. Replace `frontend/src/components/StarterScreen.tsx` with your first screen.
+   2. Replace `frontend/src/features/field-notes/FieldNotesScreen.tsx` with your first screen,
+      or keep its local-first storage pattern when the feature needs offline data.
 3. Add your API route under `backend/api/` and register it in
    `backend/app_factory.py`.
 4. Run `make check`.
@@ -134,7 +158,7 @@ make doctor
 ## Project folders
 
 ```text
-frontend/   React, PWA files, and the starter screen
+frontend/   React, PWA files, and the Field Notes reference workflow
 backend/    FastAPI routes and tests
 config/     Local environment settings
 docs/       PWA, WebSocket, architecture, and deployment guides

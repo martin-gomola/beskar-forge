@@ -37,6 +37,10 @@ class Settings:
     # ── Paths ─────────────────────────────────────────────────────────────
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     DATA_DIR = os.path.join(BASE_DIR, "data")
+    FIELD_NOTES_DB_PATH = os.getenv(
+        "FIELD_NOTES_DB_PATH",
+        os.path.join(DATA_DIR, "field_notes.db"),
+    )
 
     # ── Logging ───────────────────────────────────────────────────────────
     LOG_LEVEL: str = parse_log_level(os.getenv("LOG_LEVEL", "INFO"))
