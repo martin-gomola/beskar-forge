@@ -38,6 +38,23 @@ const indexHtml = read('index.html')
 const sourceWorker = read('public/sw.js')
 const mainSource = read('src/main.tsx')
 const updateHookSource = read('src/hooks/useServiceWorkerUpdate.ts')
+const viteConfigSource = read('vite.config.ts')
+const robotsPath = requireFile('public/robots.txt')
+const robotsSource = fs.readFileSync(robotsPath, 'utf8')
+const crawlerDirectives = 'noindex, nofollow, noarchive, nosnippet, noimageindex'
+
+requireCondition(
+  robotsSource.trim() === 'User-agent: *\nDisallow: /',
+  'robots.txt must deny all crawlers by default',
+)
+requireCondition(
+  indexHtml.includes(`name="robots" content="${crawlerDirectives}, nocache"`),
+  'index.html must keep the private-app robots meta policy',
+)
+requireCondition(
+  viteConfigSource.includes(`'X-Robots-Tag': '${crawlerDirectives}'`),
+  'Vite must emit the private-app X-Robots-Tag policy in dev and preview',
+)
 
 for (const field of ['name', 'short_name', 'id', 'start_url', 'scope', 'display']) {
   requireCondition(Boolean(manifest[field]), `manifest is missing ${field}`)
@@ -103,6 +120,12 @@ requireCondition(mainSource.includes("document.visibilityState === 'visible'"), 
 
 const builtWorkerPath = requireFile('dist/sw.js')
 const builtWorker = fs.readFileSync(builtWorkerPath, 'utf8')
+const builtRobotsPath = requireFile('dist/robots.txt')
+const builtRobots = fs.readFileSync(builtRobotsPath, 'utf8')
+requireCondition(
+  builtRobots.trim() === robotsSource.trim(),
+  'built robots.txt must preserve the private-app crawler policy',
+)
 requireCondition(!builtWorker.includes('__BUILD_VERSION__'), 'generated worker still contains BUILD_VERSION placeholder')
 requireCondition(!builtWorker.includes('__PRECACHE_URLS__'), 'generated worker still contains PRECACHE_URLS placeholder')
 

@@ -15,6 +15,25 @@ The frontend build runs `npm run check:pwa`. It validates the manifest, icon
 files, HTML metadata, generated precache, API caching policy, and worker update
 lifecycle without adding another package.
 
+## Privacy and crawler defaults
+
+The starter is non-indexable by default. `public/robots.txt` disallows all
+crawlers, `index.html` carries a `noindex` robots policy, and the deployment
+edges emit `X-Robots-Tag` for local Nginx, Vite preview, and Render static
+hosting. The PWA contract check verifies these surfaces and the copied
+`dist/robots.txt` file; `make check` also verifies the Nginx and Render
+configuration files.
+
+These controls only guide compliant crawlers. They do not protect API
+responses, prevent scraping, or make a public deployment private. Keep API
+responses network-only and keep secrets and sensitive data out of the SPA and
+IndexedDB. Add authentication with server-side authorization, or a private
+access gateway/VPN, when the application handles private data.
+
+Do not add a sitemap to a private fork. For a deliberately public fork, change
+the robots policy, headers, and contract checks together and review the result
+as a public-site configuration.
+
 ## What the starter guarantees
 
 | Concern | Starter behavior |

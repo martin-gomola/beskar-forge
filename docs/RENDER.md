@@ -37,6 +37,15 @@ no GitHub Action is required.
 Two separate Render services, two hostnames, **cross-origin**. The
 static site holds the clean public URL; the API gets the suffix.
 
+The Blueprint is intentionally a public-demo deployment. The static site
+includes a default-deny `robots.txt`, and its headers emit `X-Robots-Tag` with
+the same non-indexing policy. These reduce discovery by compliant crawlers but
+are not an access boundary. Render's public URLs remain reachable, and the
+frontend bundle and browser storage must be treated as public to anyone who
+can load the app. Use authentication with server-side authorization or a
+private access gateway/VPN for private applications; do not rely on
+`APP_API_KEY`, which is not browser user authentication.
+
 ## Critical gotchas (verified, do not skip)
 
 1. **`plan: free` is required on the Docker web service.** Without

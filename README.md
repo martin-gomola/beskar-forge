@@ -134,6 +134,26 @@ share container names.
 `APP_API_KEY` protects scripts and other non-browser callers. It is not user
 authentication for private application data.
 
+## Privacy and crawler defaults
+
+The starter is private by default for search and AI crawler discovery. It
+ships a root [`robots.txt`](./frontend/public/robots.txt) that disallows all
+crawlers, a `noindex` robots meta tag, and `X-Robots-Tag` headers for local
+Nginx, Vite preview, and the Render static deployment.
+
+These are signals for compliant crawlers, not access control. They do not stop
+a scraper or a person who can reach the public URL. Do not put secrets or
+sensitive data in the frontend bundle or browser storage. For genuinely
+private data, add authentication and server-side authorization, or put both
+frontend and backend behind a private access gateway or VPN. The Render
+Blueprint is a public-demo deployment and should not be used as the privacy
+boundary.
+
+Do not add a `sitemap.xml` to a private fork. If you intentionally build a
+public, indexable site from this starter, review and relax `robots.txt`, the
+robots meta tag, the `X-Robots-Tag` headers, and the corresponding contract
+checks as one deliberate change.
+
 ## Deploy
 
 For a Docker server:

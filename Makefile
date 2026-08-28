@@ -94,6 +94,7 @@ setup: ensure-env
 check: ensure-env
 	@bash scripts/test_doctor.sh
 	@bash scripts/test_compose_config.sh
+	@bash scripts/check_privacy.sh
 	@echo "Preparing check containers..."
 	@BUILDKIT_PROGRESS=quiet $(SETUP_DEV_COMPOSE) build frontend backend
 	@echo "Checking the frontend..."
