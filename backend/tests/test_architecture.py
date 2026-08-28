@@ -20,7 +20,7 @@ class BoilerplateArchitectureTests(unittest.TestCase):
 
         settings.API_KEY = "secret-key"
         settings.CORS_ORIGINS = [
-            "http://localhost:3020",
+            "http://localhost:3021",
             "http://localhost:8082",
             "http://localhost:8062",
         ]
@@ -51,7 +51,7 @@ class BoilerplateArchitectureTests(unittest.TestCase):
             "/api/version",
             headers={
                 "host": "localhost",
-                "origin": "http://localhost:3020",
+                "origin": "http://localhost:3021",
             },
         )
 

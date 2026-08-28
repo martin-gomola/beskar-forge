@@ -75,7 +75,7 @@ project/
 
 ```bash
 make setup          # First-time setup
-make dev            # Live reload, frontend on :3020, backend on :8062
+make dev            # Live reload, frontend on :3021, backend on :8062
 make doctor         # Diagnose env/ports/docker/CORS BEFORE debugging
 make stop / restart / logs
 make rf / rb        # Restart one service
@@ -102,7 +102,7 @@ make check          # Build frontend + run backend tests
 
 | Service  | Dev URL              | Prod URL              |
 |----------|----------------------|-----------------------|
-| Frontend | http://localhost:3020 | http://localhost:8082 |
+| Frontend | http://localhost:3021 | http://localhost:8082 |
 | Backend  | http://localhost:8062 | http://localhost:8062 |
 
 ## Environment Variables
@@ -112,10 +112,10 @@ Source of truth: [`config/env.example`](./config/env.example). Key vars:
 | Variable | Purpose | Default |
 |----------|---------|---------|
 | `APP_API_KEY` | Protects non-browser callers; not user authentication | empty (disabled) |
-| `CORS_ORIGINS` | Browser origins allowed to call the API. **Must include public hostnames in production.** | `http://localhost:3020,http://localhost:8082` |
+| `CORS_ORIGINS` | Browser origins allowed to call the API. **Must include public hostnames in production.** | `http://localhost:3021,http://localhost:8082` |
 | `TRUSTED_HOSTS` | Hostnames the FastAPI middleware trusts. Bare hosts only, no scheme. | `localhost,127.0.0.1` |
 | `LOG_LEVEL` | Python logging level | `INFO` |
-| `DEV_FRONTEND_PORT` | Vite development host port | `3020` |
+| `DEV_FRONTEND_PORT` | Vite development host port | `3021` |
 | `BACKEND_PORT` / `FRONTEND_PORT` | Production-shaped host port overrides | `8062` / `8082` |
 
 `make doctor` validates key drift, value shape, ports, Docker Compose support,
@@ -175,7 +175,7 @@ problems before you start debugging code.
 
 ```bash
 docker ps                     # check container conflicts
-lsof -nP -iTCP:3020 -sTCP:LISTEN  # find host process
+lsof -nP -iTCP:3021 -sTCP:LISTEN  # find host process
 ```
 
 ### Slow Docker builds

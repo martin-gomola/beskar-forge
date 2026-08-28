@@ -61,7 +61,7 @@ make setup
 
 The first setup may take a few minutes while Docker downloads the base images.
 
-Open [http://localhost:3020](http://localhost:3020).
+Open [http://localhost:3021](http://localhost:3021).
 
 `make setup` creates the local configuration, builds the containers, and starts
 development mode. You only need it once.

@@ -73,7 +73,7 @@ export default defineConfig({
     hmr: (process.env.VITE_HMR_HOST || process.env.VITE_HMR_CLIENT_PORT)
       ? {
           host: process.env.VITE_HMR_HOST || 'localhost',
-          clientPort: Number(process.env.VITE_HMR_CLIENT_PORT || 3020),
+          clientPort: Number(process.env.VITE_HMR_CLIENT_PORT || 3021),
         }
       : undefined,
     proxy: {

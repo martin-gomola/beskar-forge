@@ -16,7 +16,7 @@ BACKEND_HOST_PORT := $(if $(strip $(BACKEND_HOST_PORT)),$(strip $(BACKEND_HOST_P
 FRONTEND_HOST_PORT := $(if $(FRONTEND_PORT),$(FRONTEND_PORT),$(shell awk -F= '$$1 == "FRONTEND_PORT" { print $$2; exit }' $(ENV_FILE) 2>/dev/null))
 FRONTEND_HOST_PORT := $(if $(strip $(FRONTEND_HOST_PORT)),$(strip $(FRONTEND_HOST_PORT)),8082)
 DEV_FRONTEND_HOST_PORT := $(if $(DEV_FRONTEND_PORT),$(DEV_FRONTEND_PORT),$(shell awk -F= '$$1 == "DEV_FRONTEND_PORT" { print $$2; exit }' $(ENV_FILE) 2>/dev/null))
-DEV_FRONTEND_HOST_PORT := $(if $(strip $(DEV_FRONTEND_HOST_PORT)),$(strip $(DEV_FRONTEND_HOST_PORT)),3020)
+DEV_FRONTEND_HOST_PORT := $(if $(strip $(DEV_FRONTEND_HOST_PORT)),$(strip $(DEV_FRONTEND_HOST_PORT)),3021)
 COMPOSE_CMD ?= docker compose
 COMPOSE := $(COMPOSE_CMD)
 ifneq ("$(wildcard $(ENV_FILE))","")

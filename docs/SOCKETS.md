@@ -130,7 +130,7 @@ whatever), the public origin **must** appear in two env vars:
 
 ```env
 # config/.env on the deploy host
-CORS_ORIGINS=http://localhost:3020,http://localhost:8082,https://your-app.example.com
+CORS_ORIGINS=http://localhost:3021,http://localhost:8082,https://your-app.example.com
 TRUSTED_HOSTS=localhost,127.0.0.1,your-app.example.com
 ```
 

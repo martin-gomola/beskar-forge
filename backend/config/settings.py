@@ -25,7 +25,7 @@ class Settings:
     # ── Security ──────────────────────────────────────────────────────────
     API_KEY: Optional[str] = os.getenv("APP_API_KEY", "").strip() or None
 
-    _cors_env = os.getenv("CORS_ORIGINS", "http://localhost:3020,http://localhost:8082")
+    _cors_env = os.getenv("CORS_ORIGINS", "http://localhost:3021,http://localhost:8082")
     CORS_ORIGINS: List[str] = [o.strip() for o in _cors_env.split(",") if o.strip()]
 
     _trusted_env = os.getenv("TRUSTED_HOSTS", "localhost,127.0.0.1")

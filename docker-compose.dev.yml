@@ -1,7 +1,7 @@
 # Development overrides for faster development
 #
 # Key differences from production:
-# - Frontend: Configurable host port 3020 (Vite) instead of nginx
+# - Frontend: Configurable host port 3021 (Vite) instead of nginx
 # - Backend: Live reload enabled via --reload
 # - Volumes: Mounted for hot reload
 services:
@@ -26,7 +26,7 @@ services:
       - ./frontend/public:/app/public
     # Replace the production nginx port mapping. Development exposes only Vite.
     ports: !override
-      - "${DEV_FRONTEND_PORT:-3020}:5173"
+      - "${DEV_FRONTEND_PORT:-3021}:5173"
     command: ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
     environment:
       - NODE_ENV=development
@@ -38,7 +38,7 @@ services:
       - CHOKIDAR_USEPOLLING=true
       - CHOKIDAR_INTERVAL=300
       - VITE_HMR_HOST=localhost
-      - VITE_HMR_CLIENT_PORT=${DEV_FRONTEND_PORT:-3020}
+      - VITE_HMR_CLIENT_PORT=${DEV_FRONTEND_PORT:-3021}
       - VITE_USE_POLLING=true
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:5173/ || exit 1"]

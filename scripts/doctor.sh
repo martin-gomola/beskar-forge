@@ -248,7 +248,7 @@ check_port() {
 
 BACKEND_PORT="${BACKEND_PORT:-8062}"
 FRONTEND_PORT="${FRONTEND_PORT:-8082}"
-DEV_FRONTEND_PORT="${DEV_FRONTEND_PORT:-3020}"
+DEV_FRONTEND_PORT="${DEV_FRONTEND_PORT:-3021}"
 
 valid_ports=true
 validate_port "$BACKEND_PORT" "backend" || valid_ports=false

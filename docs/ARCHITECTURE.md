@@ -57,7 +57,7 @@ flowchart LR
         end
     end
 
-    User -->|Dev: :3020| Vite
+    User -->|Dev: :3021| Vite
     User -->|Prod: :8082| Nginx
     User -->|API/docs: :8062| API
     User <-->|update checks + cached assets| SW
@@ -99,7 +99,7 @@ App-specific concerns should be migrated in gradually and kept modular so they c
 ### Development
 
 - `docker-compose.yml` + `docker-compose.dev.yml` run the backend with live reload and the frontend with the Vite dev server.
-- The frontend is exposed on `http://localhost:3020`.
+- The frontend is exposed on `http://localhost:3021`.
 - The backend is exposed on `http://localhost:8062`.
 - Source directories are bind-mounted so frontend and backend changes reload without rebuilding the image.
 
