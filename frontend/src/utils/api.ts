@@ -10,8 +10,7 @@
  *
  * Resolution order:
  *   1. `VITE_API_URL` at build time (Render, any split deploy).
- *   2. `http://localhost:8065` when running on localhost (dev).
- *   3. Empty string -> same-origin (self-hosted nginx-proxied Docker).
+ *   2. Empty string -> same-origin (Vite proxy or self-hosted Nginx).
  *
  * See docs/RENDER.md ("The relative-fetch trap").
  */
@@ -20,13 +19,6 @@ const stripTrailingSlash = (url: string): string => url.replace(/\/+$/, '')
 function resolveBaseUrl(): string {
   const buildTimeUrl = import.meta.env.VITE_API_URL
   if (buildTimeUrl) return stripTrailingSlash(buildTimeUrl)
-
-  if (typeof window !== 'undefined') {
-    const host = window.location.hostname
-    if (host === 'localhost' || host === '127.0.0.1') {
-      return 'http://localhost:8065'
-    }
-  }
 
   return ''
 }

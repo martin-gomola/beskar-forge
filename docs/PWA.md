@@ -52,7 +52,7 @@ as a public-site configuration.
 
 1. Vite stamps a build version and precache list into `frontend/public/sw.js`.
 2. The browser downloads the new worker and its cache, then leaves it waiting.
-3. `useServiceWorkerUpdate` observes `registration.waiting` and `updatefound`.
+3. `updateLifecycle` observes `registration.waiting` and `updatefound`, then exposes the waiting worker through `useServiceWorkerUpdate`.
 4. The app shows **Update now**. No cache is deleted yet.
 5. The button sends `{ type: 'SKIP_WAITING' }` directly to the waiting worker.
 6. During activation, the worker removes only old `app-shell-*` caches and claims

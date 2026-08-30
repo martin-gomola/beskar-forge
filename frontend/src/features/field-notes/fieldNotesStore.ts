@@ -16,6 +16,16 @@ export interface FieldNote {
   conflictMessage?: string
 }
 
+export interface FieldNotesAdapter {
+  loadNotes: () => Promise<FieldNote[]>
+  loadPendingCount: () => Promise<number>
+  saveNote: (note: FieldNote, baseVersion: number | null) => Promise<void>
+  deleteNote: (note: FieldNote) => Promise<void>
+  keepLocal: (note: FieldNote) => Promise<void>
+  useServer: (note: FieldNote) => Promise<void>
+  sync: () => Promise<{ conflicts: number }>
+}
+
 interface StoredMutation {
   mutationId: string
   noteId: string
@@ -150,22 +160,22 @@ async function putMeta(key: string, value: string | number): Promise<void> {
   }
 }
 
-export async function loadLocalNotes(): Promise<FieldNote[]> {
+async function loadLocalNotes(): Promise<FieldNote[]> {
   const notes = await getAll<FieldNote>(NOTES_STORE)
   return notes
     .filter((note) => !note.deletedAt)
     .sort((left, right) => right.updatedAt.localeCompare(left.updatedAt))
 }
 
-export async function loadPendingMutations(): Promise<StoredMutation[]> {
+async function loadPendingMutations(): Promise<StoredMutation[]> {
   return getAll<StoredMutation>(OUTBOX_STORE)
 }
 
-export async function getSyncCursor(): Promise<number> {
+async function getSyncCursor(): Promise<number> {
   return (await getMeta<number>('syncCursor')) ?? 0
 }
 
-export async function getDeviceId(): Promise<string> {
+async function getDeviceId(): Promise<string> {
   const storedDeviceId = await getMeta<string>('deviceId')
   if (storedDeviceId) return storedDeviceId
 
@@ -176,7 +186,7 @@ export async function getDeviceId(): Promise<string> {
   return deviceId
 }
 
-export async function saveLocalNote(note: FieldNote, baseVersion: number | null): Promise<void> {
+async function saveLocalNote(note: FieldNote, baseVersion: number | null): Promise<void> {
   const existingMutations = await loadPendingMutations()
   const database = await openDatabase()
   try {
@@ -205,7 +215,7 @@ export async function saveLocalNote(note: FieldNote, baseVersion: number | null)
   }
 }
 
-export async function deleteLocalNote(note: FieldNote): Promise<void> {
+async function deleteLocalNote(note: FieldNote): Promise<void> {
   const existingMutations = await loadPendingMutations()
   const database = await openDatabase()
   try {
@@ -240,7 +250,7 @@ export async function deleteLocalNote(note: FieldNote): Promise<void> {
   }
 }
 
-export async function applySyncResponse(response: SyncResponse): Promise<void> {
+async function applySyncResponse(response: SyncResponse): Promise<void> {
   const [pending, localNotes] = await Promise.all([
     loadPendingMutations(),
     getAll<FieldNote>(NOTES_STORE),
@@ -288,12 +298,12 @@ export async function applySyncResponse(response: SyncResponse): Promise<void> {
   await putMeta('syncCursor', response.next_cursor)
 }
 
-export async function resolveConflictKeepLocal(note: FieldNote): Promise<void> {
+async function resolveConflictKeepLocal(note: FieldNote): Promise<void> {
   if (!note.conflictNote) return
   await saveLocalNote(note, note.conflictNote.version)
 }
 
-export async function resolveConflictUseServer(note: FieldNote): Promise<void> {
+async function resolveConflictUseServer(note: FieldNote): Promise<void> {
   if (!note.conflictNote) return
   const mutations = await loadPendingMutations()
   const database = await openDatabase()
@@ -319,7 +329,7 @@ export async function resolveConflictUseServer(note: FieldNote): Promise<void> {
   }
 }
 
-export async function syncLocalNotes(): Promise<{ conflicts: number }> {
+async function syncLocalNotes(): Promise<{ conflicts: number }> {
   const [deviceId, cursor, mutations] = await Promise.all([
     getDeviceId(),
     getSyncCursor(),
@@ -346,4 +356,14 @@ export async function syncLocalNotes(): Promise<{ conflicts: number }> {
   const result = await response.json() as SyncResponse
   await applySyncResponse(result)
   return { conflicts: result.conflicts.length }
+}
+
+export const fieldNotesAdapter: FieldNotesAdapter = {
+  loadNotes: loadLocalNotes,
+  loadPendingCount: async () => (await loadPendingMutations()).length,
+  saveNote: saveLocalNote,
+  deleteNote: deleteLocalNote,
+  keepLocal: resolveConflictKeepLocal,
+  useServer: resolveConflictUseServer,
+  sync: syncLocalNotes,
 }

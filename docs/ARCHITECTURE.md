@@ -116,11 +116,13 @@ App-specific concerns should be migrated in gradually and kept modular so they c
 
 - `frontend/src/App.tsx` renders the platform shell and the update banner.
 - `frontend/src/components/PullToRefresh.tsx` exposes a touch pull gesture that checks for waiting service-worker updates.
-- `frontend/src/features/field-notes/FieldNotesScreen.tsx` demonstrates local-first capture, sync status, and conflict recovery.
-- `frontend/src/features/field-notes/fieldNotesStore.ts` owns IndexedDB records, the mutation outbox, the sync cursor, and device identity.
+- `frontend/src/features/field-notes/FieldNotesScreen.tsx` renders local-first capture, sync status, and conflict recovery.
+- `frontend/src/features/field-notes/useFieldNotesSession.ts` owns Field Notes state transitions, browser lifecycle, and actions.
+- `frontend/src/features/field-notes/fieldNotesStore.ts` supplies the browser storage and sync adapter, including IndexedDB records, the mutation outbox, the sync cursor, and device identity.
 - `frontend/src/platform/` owns app-wide local-data clearing and explicit notification helpers that new features can reuse.
-- `frontend/src/main.tsx` bootstraps React and registers the service worker in production.
-- `frontend/src/hooks/useServiceWorkerUpdate.ts` detects a waiting worker, applies accepted updates, and guards cross-tab reloads.
+- `frontend/src/platform/updateLifecycle.ts` owns production worker registration, scheduled checks, waiting-worker detection, accepted updates, and guarded reloads.
+- `frontend/src/main.tsx` bootstraps React and starts the update lifecycle in production.
+- `frontend/src/hooks/useServiceWorkerUpdate.ts` adapts lifecycle state for React.
 - `frontend/public/sw.js` manages the app-shell cache and user-controlled update activation.
 - `frontend/nginx.conf` serves the built app, caches hashed assets, and proxies API traffic in production.
 
@@ -195,7 +197,7 @@ renamed copies can coexist.
 1. A new frontend build updates the service worker build version.
 2. The browser checks for an updated service worker hourly or when an overdue tab becomes visible.
 3. The new worker installs and waits while the previous worker and cache stay active.
-4. `useServiceWorkerUpdate()` shows the update action.
+4. The update lifecycle exposes a waiting worker to `useServiceWorkerUpdate()`.
 5. User acceptance sends `SKIP_WAITING` to the waiting worker.
 6. The worker activates, cleans only old app caches, and claims clients.
 7. Each open tab observes the controller change and reloads once.

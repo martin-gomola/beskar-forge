@@ -11,12 +11,10 @@
 # Docker Compose v2.24.4+ is required for the development override syntax.
 # Override COMPOSE_CMD only with a compatible `docker compose` command.
 ENV_FILE := config/.env
-BACKEND_HOST_PORT := $(if $(BACKEND_PORT),$(BACKEND_PORT),$(shell awk -F= '$$1 == "BACKEND_PORT" { print $$2; exit }' $(ENV_FILE) 2>/dev/null))
-BACKEND_HOST_PORT := $(if $(strip $(BACKEND_HOST_PORT)),$(strip $(BACKEND_HOST_PORT)),8065)
-FRONTEND_HOST_PORT := $(if $(FRONTEND_PORT),$(FRONTEND_PORT),$(shell awk -F= '$$1 == "FRONTEND_PORT" { print $$2; exit }' $(ENV_FILE) 2>/dev/null))
-FRONTEND_HOST_PORT := $(if $(strip $(FRONTEND_HOST_PORT)),$(strip $(FRONTEND_HOST_PORT)),8082)
-DEV_FRONTEND_HOST_PORT := $(if $(DEV_FRONTEND_PORT),$(DEV_FRONTEND_PORT),$(shell awk -F= '$$1 == "DEV_FRONTEND_PORT" { print $$2; exit }' $(ENV_FILE) 2>/dev/null))
-DEV_FRONTEND_HOST_PORT := $(if $(strip $(DEV_FRONTEND_HOST_PORT)),$(strip $(DEV_FRONTEND_HOST_PORT)),3021)
+PORT_CONFIG_FILE := $(if $(wildcard $(ENV_FILE)),$(ENV_FILE),config/env.example)
+BACKEND_HOST_PORT := $(if $(BACKEND_PORT),$(BACKEND_PORT),$(shell awk -F= '$$1 == "BACKEND_PORT" { print $$2; exit }' $(PORT_CONFIG_FILE) 2>/dev/null))
+FRONTEND_HOST_PORT := $(if $(FRONTEND_PORT),$(FRONTEND_PORT),$(shell awk -F= '$$1 == "FRONTEND_PORT" { print $$2; exit }' $(PORT_CONFIG_FILE) 2>/dev/null))
+DEV_FRONTEND_HOST_PORT := $(if $(DEV_FRONTEND_PORT),$(DEV_FRONTEND_PORT),$(shell awk -F= '$$1 == "DEV_FRONTEND_PORT" { print $$2; exit }' $(PORT_CONFIG_FILE) 2>/dev/null))
 COMPOSE_CMD ?= docker compose
 COMPOSE := $(COMPOSE_CMD)
 ifneq ("$(wildcard $(ENV_FILE))","")
@@ -94,6 +92,7 @@ setup: ensure-env
 check: ensure-env
 	@bash scripts/test_doctor.sh
 	@bash scripts/test_compose_config.sh
+	@bash scripts/test_runtime_config.sh
 	@bash scripts/check_privacy.sh
 	@echo "Preparing check containers..."
 	@BUILDKIT_PROGRESS=quiet $(SETUP_DEV_COMPOSE) build frontend backend

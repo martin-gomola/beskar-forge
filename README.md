@@ -187,6 +187,7 @@ docs/       PWA, WebSocket, architecture, and deployment guides
 
 - [PWA and mobile installation](./docs/PWA.md)
 - [Architecture](./docs/ARCHITECTURE.md)
+- [Domain context](./docs/CONTEXT.md)
 - [Render deployment](./docs/RENDER.md)
 - [Adding WebSockets](./docs/SOCKETS.md)
 - [All documentation](./docs/README.md)

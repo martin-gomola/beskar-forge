@@ -9,7 +9,7 @@ services:
       - PYTHONPATH=/app
       - PYTHONUNBUFFERED=1
     ports:
-      - "${BACKEND_PORT:-8065}:8060"
+      - "${BACKEND_PORT:?Set BACKEND_PORT in config/.env}:8060"
     volumes:
       - ./backend/data:/app/data
     healthcheck:
@@ -25,7 +25,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "${FRONTEND_PORT:-8082}:80"
+      - "${FRONTEND_PORT:?Set FRONTEND_PORT in config/.env}:80"
     depends_on:
       backend:
         condition: service_healthy

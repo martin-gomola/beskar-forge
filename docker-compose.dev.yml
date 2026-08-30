@@ -26,19 +26,19 @@ services:
       - ./frontend/public:/app/public
     # Replace the production nginx port mapping. Development exposes only Vite.
     ports: !override
-      - "${DEV_FRONTEND_PORT:-3021}:5173"
+      - "${DEV_FRONTEND_PORT:?Set DEV_FRONTEND_PORT in config/.env}:5173"
     command: ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
     environment:
       - NODE_ENV=development
       # Browser-facing URL. Docker's `backend` hostname is not resolvable by
       # the user's browser, so expose the configured host port here.
-      - VITE_API_URL=http://localhost:${BACKEND_PORT:-8065}
+      - VITE_API_URL=http://localhost:${BACKEND_PORT:?Set BACKEND_PORT in config/.env}
       # Vite itself runs inside Compose and can use the service hostname.
       - VITE_DEV_API_TARGET=http://backend:8060
       - CHOKIDAR_USEPOLLING=true
       - CHOKIDAR_INTERVAL=300
       - VITE_HMR_HOST=localhost
-      - VITE_HMR_CLIENT_PORT=${DEV_FRONTEND_PORT:-3021}
+      - VITE_HMR_CLIENT_PORT=${DEV_FRONTEND_PORT:?Set DEV_FRONTEND_PORT in config/.env}
       - VITE_USE_POLLING=true
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:5173/ || exit 1"]

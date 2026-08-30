@@ -39,6 +39,7 @@ const sourceWorker = read('public/sw.js')
 const mainSource = read('src/main.tsx')
 const appSource = read('src/App.tsx')
 const updateHookSource = read('src/hooks/useServiceWorkerUpdate.ts')
+const updateLifecycleSource = read('src/platform/updateLifecycle.ts')
 const pullToRefreshSource = read('src/components/PullToRefresh.tsx')
 const viteConfigSource = read('vite.config.ts')
 const robotsPath = requireFile('public/robots.txt')
@@ -107,21 +108,23 @@ requireCondition(sourceWorker.includes("key.startsWith(`${CACHE_PREFIX}-`)"), 'c
 requireCondition(sourceWorker.includes("url.pathname.startsWith('/api/')"), 'service worker must identify /api requests')
 requireCondition(sourceWorker.includes('// API: network-only'), 'service-worker API policy must remain network-only')
 requireCondition(
-  /navigator\.serviceWorker\.register\('\/sw\.js'[,)]/.test(mainSource),
+  /navigator\.serviceWorker\.register\('\/sw\.js'[,)]/.test(updateLifecycleSource),
   'service worker URL must remain /sw.js',
 )
 const installHandler = sourceWorker.match(/self\.addEventListener\('install',[\s\S]*?\n}\)/)?.[0] ?? ''
 requireCondition(!installHandler.includes('skipWaiting'), 'install handler must leave a new worker waiting')
 requireCondition(sourceWorker.includes("event.data?.type !== 'SKIP_WAITING'"), 'worker must accept only the SKIP_WAITING update message')
 requireCondition(sourceWorker.includes('event.waitUntil(self.skipWaiting())'), 'SKIP_WAITING must extend the worker message lifetime')
-requireCondition(updateHookSource.includes("addEventListener('updatefound'"), 'update hook must observe newly installed workers')
-requireCondition(updateHookSource.includes("addEventListener('controllerchange'"), 'update hook must observe worker control changes')
-requireCondition(updateHookSource.includes('hasReloaded.current'), 'controller changes need a guarded reload')
+requireCondition(mainSource.includes('startUpdateLifecycle'), 'main entrypoint must start the update lifecycle')
+requireCondition(updateHookSource.includes('subscribeToUpdateLifecycle'), 'update hook must subscribe to lifecycle state')
+requireCondition(updateLifecycleSource.includes("addEventListener('updatefound'"), 'update lifecycle must observe newly installed workers')
+requireCondition(updateLifecycleSource.includes("addEventListener('controllerchange'"), 'update lifecycle must observe worker control changes')
+requireCondition(updateLifecycleSource.includes('hasReloaded'), 'controller changes need a guarded reload')
 requireCondition(appSource.includes('<PullToRefresh'), 'touch interfaces need the pull-to-refresh update control')
 requireCondition(pullToRefreshSource.includes("addEventListener('touchmove'"), 'pull-to-refresh must handle touch movement')
 requireCondition(pullToRefreshSource.includes('void onRefresh()'), 'pull-to-refresh must invoke the update check callback')
-requireCondition(mainSource.includes('60 * 60 * 1000'), 'automatic update checks must be hourly')
-requireCondition(mainSource.includes("document.visibilityState === 'visible'"), 'returning to a visible app must check overdue updates')
+requireCondition(updateLifecycleSource.includes('60 * 60 * 1000'), 'automatic update checks must be hourly')
+requireCondition(updateLifecycleSource.includes("document.visibilityState === 'visible'"), 'returning to a visible app must check overdue updates')
 
 const builtWorkerPath = requireFile('dist/sw.js')
 const builtWorker = fs.readFileSync(builtWorkerPath, 'utf8')

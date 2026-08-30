@@ -1,171 +1,33 @@
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
+import { type FormEvent } from 'react'
 
-import {
-  deleteLocalNote,
-  loadLocalNotes,
-  loadPendingMutations,
-  resolveConflictKeepLocal,
-  resolveConflictUseServer,
-  saveLocalNote,
-  syncLocalNotes,
-  type FieldNote,
-} from './fieldNotesStore'
-
-type ScreenState = 'loading' | 'ready' | 'error'
-
-function makeId(): string {
-  return typeof crypto.randomUUID === 'function'
-    ? crypto.randomUUID()
-    : `note-${Date.now()}-${Math.random().toString(16).slice(2)}`
-}
+import { useFieldNotesSession } from './useFieldNotesSession'
 
 export function FieldNotesScreen() {
-  const [notes, setNotes] = useState<FieldNote[]>([])
-  const [pendingCount, setPendingCount] = useState(0)
-  const [screenState, setScreenState] = useState<ScreenState>('loading')
-  const [online, setOnline] = useState(() => navigator.onLine)
-  const [syncing, setSyncing] = useState(false)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const [lastSyncMessage, setLastSyncMessage] = useState('')
-  const [editingNoteId, setEditingNoteId] = useState<string | null>(null)
-  const [title, setTitle] = useState('')
-  const [details, setDetails] = useState('')
+  const {
+    notes,
+    pendingCount,
+    screenState,
+    online,
+    syncing,
+    errorMessage,
+    lastSyncMessage,
+    editingNote,
+    title,
+    details,
+    setTitle,
+    setDetails,
+    sync,
+    save,
+    startEditing,
+    cancelEditing,
+    deleteNote,
+    keepLocal,
+    useServer,
+  } = useFieldNotesSession()
 
-  const editingNote = useMemo(
-    () => notes.find((note) => note.id === editingNoteId) ?? null,
-    [editingNoteId, notes],
-  )
-
-  const refresh = useCallback(async () => {
-    const [localNotes, pendingMutations] = await Promise.all([
-      loadLocalNotes(),
-      loadPendingMutations(),
-    ])
-    setNotes(localNotes)
-    setPendingCount(pendingMutations.length)
-    setScreenState('ready')
-  }, [])
-
-  const sync = useCallback(async () => {
-    if (!navigator.onLine) {
-      await refresh()
-      setLastSyncMessage('Working offline. Changes stay on this device.')
-      return
-    }
-
-    setSyncing(true)
-    setErrorMessage(null)
-    try {
-      const result = await syncLocalNotes()
-      await refresh()
-      setLastSyncMessage(
-        result.conflicts > 0
-          ? `${result.conflicts} change needs your review.`
-          : 'All changes synced.',
-      )
-    } catch {
-      await refresh()
-      setErrorMessage('Could not reach the server. Your local changes are safe and queued.')
-      setLastSyncMessage('Waiting to sync when a connection returns.')
-    } finally {
-      setSyncing(false)
-    }
-  }, [refresh])
-
-  useEffect(() => {
-    let mounted = true
-    void (async () => {
-      try {
-        await refresh()
-        if (mounted && navigator.onLine) await sync()
-      } catch {
-        if (mounted) {
-          setScreenState('error')
-          setErrorMessage('Local storage is unavailable in this browser.')
-        }
-      }
-    })()
-    return () => {
-      mounted = false
-    }
-  }, [refresh, sync])
-
-  useEffect(() => {
-    const handleOnline = () => {
-      setOnline(true)
-      void sync()
-    }
-    const handleOffline = () => {
-      setOnline(false)
-      setLastSyncMessage('Working offline. Changes stay on this device.')
-    }
-    const handleVisibility = () => {
-      if (document.visibilityState === 'visible' && navigator.onLine) void sync()
-    }
-
-    window.addEventListener('online', handleOnline)
-    window.addEventListener('offline', handleOffline)
-    document.addEventListener('visibilitychange', handleVisibility)
-    return () => {
-      window.removeEventListener('online', handleOnline)
-      window.removeEventListener('offline', handleOffline)
-      document.removeEventListener('visibilitychange', handleVisibility)
-    }
-  }, [sync])
-
-  function resetForm() {
-    setEditingNoteId(null)
-    setTitle('')
-    setDetails('')
-  }
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    const cleanTitle = title.trim()
-    const cleanDetails = details.trim()
-    if (!cleanTitle) return
-
-    const now = new Date().toISOString()
-    const note: FieldNote = editingNote
-      ? {
-          ...editingNote,
-          title: cleanTitle,
-          details: cleanDetails,
-          updatedAt: now,
-          deletedAt: null,
-        }
-      : {
-          id: makeId(),
-          title: cleanTitle,
-          details: cleanDetails,
-          createdAt: now,
-          updatedAt: now,
-          version: 0,
-          deletedAt: null,
-          syncState: 'pending',
-        }
-
-    await saveLocalNote(note, editingNote ? editingNote.version : null)
-    resetForm()
-    await refresh()
-    if (navigator.onLine) void sync()
-  }
-
-  async function handleDelete(note: FieldNote) {
-    await deleteLocalNote(note)
-    await refresh()
-    if (navigator.onLine) void sync()
-  }
-
-  async function handleKeepLocal(note: FieldNote) {
-    await resolveConflictKeepLocal(note)
-    await refresh()
-    if (navigator.onLine) void sync()
-  }
-
-  async function handleUseServer(note: FieldNote) {
-    await resolveConflictUseServer(note)
-    await refresh()
+    void save()
   }
 
   if (screenState === 'loading') {
@@ -201,7 +63,7 @@ export function FieldNotesScreen() {
           Your note is saved on this device before we try the network. You can keep working with no signal.
         </p>
 
-        <form className="field-note-form" onSubmit={(event) => void handleSubmit(event)}>
+        <form className="field-note-form" onSubmit={handleSubmit}>
           <label>
             <span>Title</span>
             <input
@@ -223,7 +85,7 @@ export function FieldNotesScreen() {
             />
           </label>
           <div className="field-note-form-actions">
-            {editingNote && <button type="button" className="button-secondary" onClick={resetForm}>Cancel</button>}
+            {editingNote && <button type="button" className="button-secondary" onClick={cancelEditing}>Cancel</button>}
             <button type="submit" className="button-primary">{editingNote ? 'Save changes' : 'Save note'}</button>
           </div>
         </form>
@@ -267,15 +129,15 @@ export function FieldNotesScreen() {
                 <div className="conflict-box">
                   <p>{note.conflictMessage} Server copy: “{note.conflictNote.title}”.</p>
                   <div className="conflict-actions">
-                    <button type="button" className="button-secondary" onClick={() => void handleUseServer(note)}>Use server copy</button>
-                    <button type="button" className="button-primary" onClick={() => void handleKeepLocal(note)}>Keep my changes</button>
+                    <button type="button" className="button-secondary" onClick={() => void useServer(note)}>Use server copy</button>
+                    <button type="button" className="button-primary" onClick={() => void keepLocal(note)}>Keep my changes</button>
                   </div>
                 </div>
               )}
               {note.syncState !== 'conflict' && (
                 <div className="field-note-actions">
-                  <button type="button" className="text-button" onClick={() => { setEditingNoteId(note.id); setTitle(note.title); setDetails(note.details) }}>Edit</button>
-                  <button type="button" className="text-button text-button-danger" onClick={() => void handleDelete(note)}>Delete</button>
+                  <button type="button" className="text-button" onClick={() => startEditing(note)}>Edit</button>
+                  <button type="button" className="text-button text-button-danger" onClick={() => void deleteNote(note)}>Delete</button>
                 </div>
               )}
             </article>
