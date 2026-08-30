@@ -47,6 +47,41 @@ a:focus-visible {
   outline-offset: 3px;
 }
 
+.pull-to-refresh {
+  min-height: 100vh;
+}
+
+.pull-to-refresh-indicator {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 0.45rem;
+  overflow: hidden;
+  padding: 0 1rem 0.65rem;
+  color: #526b58;
+  font-size: 0.74rem;
+  font-weight: 750;
+  line-height: 1;
+  transition: height 180ms ease;
+}
+
+.pull-to-refresh-icon {
+  display: inline-flex;
+  width: 1.1rem;
+  height: 1.1rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #b7c8b2;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  line-height: 1;
+}
+
+.pull-to-refresh-refreshing .pull-to-refresh-icon {
+  border-color: #5a9864;
+  animation: spin 0.8s linear infinite;
+}
+
 .starter-shell {
   width: min(100%, 46rem);
   min-height: 100vh;
@@ -291,6 +326,84 @@ a:focus-visible {
 .starter-footer button:disabled {
   cursor: wait;
   opacity: 0.65;
+}
+
+.pull-to-refresh-hint {
+  flex-basis: 100%;
+  color: #637168;
+  font-size: 0.68rem;
+}
+
+.starter-footer .pull-to-refresh-hint::before {
+  display: none;
+}
+
+.platform-controls {
+  display: grid;
+  gap: 1rem;
+  width: min(100%, 48rem);
+  margin: 1rem auto 0;
+  padding: 1rem;
+  border: 1px solid #d8e1d3;
+  border-radius: 1rem;
+  background: rgba(246, 248, 242, 0.72);
+}
+
+.platform-controls h2 {
+  margin: 0.2rem 0 0;
+  font-size: 1.05rem;
+}
+
+.platform-controls p {
+  margin: 0.35rem 0 0;
+  color: #667268;
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.platform-control-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #d8e1d3;
+}
+
+.platform-control-group strong {
+  color: #24382a;
+  font-size: 0.82rem;
+}
+
+.platform-control-group > div {
+  min-width: 0;
+  flex: 1 1 12rem;
+}
+
+.platform-control-group button {
+  flex: 0 0 auto;
+}
+
+.button-danger {
+  min-height: 2.5rem;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid #82473f;
+  border-radius: 0.7rem;
+  background: transparent;
+  color: #82473f;
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 750;
+}
+
+.button-danger:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.platform-control-error {
+  color: #82473f !important;
 }
 
 .field-notes-shell {
@@ -724,6 +837,10 @@ a:focus-visible {
 @media (min-width: 480px) {
   .starter-shell {
     padding-inline: max(1.25rem, env(safe-area-inset-left, 0px));
+  }
+
+  .platform-controls {
+    padding: 1.25rem;
   }
 
   .starter-card,

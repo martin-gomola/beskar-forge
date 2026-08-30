@@ -12,7 +12,7 @@
 # Override COMPOSE_CMD only with a compatible `docker compose` command.
 ENV_FILE := config/.env
 BACKEND_HOST_PORT := $(if $(BACKEND_PORT),$(BACKEND_PORT),$(shell awk -F= '$$1 == "BACKEND_PORT" { print $$2; exit }' $(ENV_FILE) 2>/dev/null))
-BACKEND_HOST_PORT := $(if $(strip $(BACKEND_HOST_PORT)),$(strip $(BACKEND_HOST_PORT)),8062)
+BACKEND_HOST_PORT := $(if $(strip $(BACKEND_HOST_PORT)),$(strip $(BACKEND_HOST_PORT)),8065)
 FRONTEND_HOST_PORT := $(if $(FRONTEND_PORT),$(FRONTEND_PORT),$(shell awk -F= '$$1 == "FRONTEND_PORT" { print $$2; exit }' $(ENV_FILE) 2>/dev/null))
 FRONTEND_HOST_PORT := $(if $(strip $(FRONTEND_HOST_PORT)),$(strip $(FRONTEND_HOST_PORT)),8082)
 DEV_FRONTEND_HOST_PORT := $(if $(DEV_FRONTEND_PORT),$(DEV_FRONTEND_PORT),$(shell awk -F= '$$1 == "DEV_FRONTEND_PORT" { print $$2; exit }' $(ENV_FILE) 2>/dev/null))
@@ -97,6 +97,8 @@ check: ensure-env
 	@bash scripts/check_privacy.sh
 	@echo "Preparing check containers..."
 	@BUILDKIT_PROGRESS=quiet $(SETUP_DEV_COMPOSE) build frontend backend
+	@echo "Testing the frontend..."
+	@$(SETUP_DEV_COMPOSE) run --rm --no-deps -e NODE_ENV=test -e NPM_CONFIG_UPDATE_NOTIFIER=false frontend npm test
 	@echo "Checking the frontend..."
 	@$(SETUP_DEV_COMPOSE) run --rm --no-deps -e NODE_ENV=production -e NPM_CONFIG_UPDATE_NOTIFIER=false frontend npm run build
 	@echo "Testing the backend..."
@@ -109,6 +111,7 @@ check-local:
 		echo "Installing frontend packages..."; \
 		cd frontend && npm ci; \
 	fi
+	@cd frontend && npm test
 	@cd frontend && npm run build
 	@cd backend && python -m unittest discover -s tests
 	@echo "Checks passed"
@@ -129,14 +132,13 @@ prod: ensure-env
 	@echo "Backend:  http://localhost:$(BACKEND_HOST_PORT)"
 
 dev: ensure-env
-	@echo "Starting development mode..."
-	@$(SETUP_DEV_COMPOSE) up -d
+	@echo "Building and starting development mode..."
+	@BUILDKIT_PROGRESS=quiet $(SETUP_DEV_COMPOSE) up -d --build --wait
 	@echo ""
 	@echo "Frontend: http://localhost:$(DEV_FRONTEND_HOST_PORT) (Vite dev server)"
 	@echo "Backend:  http://localhost:$(BACKEND_HOST_PORT) (live reload)"
 	@echo ""
-	@echo "Code changes reload automatically."
-	@echo "Changed a dependency? Run: make rebuild-dev"
+	@echo "Development images are rebuilt before startup; code changes reload automatically."
 
 stop:
 	@echo "Stopping all services..."

@@ -22,7 +22,7 @@ class BoilerplateArchitectureTests(unittest.TestCase):
         settings.CORS_ORIGINS = [
             "http://localhost:3021",
             "http://localhost:8082",
-            "http://localhost:8062",
+            "http://localhost:8065",
         ]
 
     def tearDown(self):

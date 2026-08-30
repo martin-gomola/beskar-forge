@@ -59,6 +59,12 @@ as a public-site configuration.
    clients.
 7. Every controlled tab observes `controllerchange` and reloads once.
 
+In a touch interface, including the installed app and mobile browser emulation,
+pull down from the very top of the page and release after
+the indicator says **Release to check for updates**. This runs the same safe
+update check as the footer action. If a new worker is found, the app keeps it
+waiting and shows **Update now** so local data is not interrupted mid-session.
+
 Do not put unconditional `skipWaiting()` back in the install handler. It can
 make a new worker control a page whose JavaScript came from the previous build.
 The message does not need a `MessageChannel` because this one-way command has no
@@ -82,6 +88,30 @@ The reference workflow syncs through `/api/field-notes/sync` when the app starts
 returns to the foreground, regains connectivity, or receives an explicit
 **Sync now** action. A note is never presented as synced until the server has
 acknowledged its mutation.
+
+## Shared app capabilities
+
+The template includes a small platform layer in `frontend/src/platform/` so
+every application can keep the same storage and notification contract:
+
+- Put app-owned `localStorage` keys under `APP_STORAGE_PREFIX` (or pass the
+  app's prefixes to `clearAppData`). Do not call `localStorage.clear()` because
+  an app may share its origin with another tool.
+- Pass every app-owned IndexedDB database name to `clearAppData`. The clear
+  operation deletes those databases and keeps `isAppDataClearInProgress()` true
+  until the caller reloads, preventing a `pagehide` save from recreating data.
+- Use `requestNotificationPermission()` only from an explicit user action.
+  `showAppNotification()` uses the registered service worker when available and
+  falls back to the browser notification API. It does not implement server push.
+- On iPhone, notification permission requires HTTPS and an installed Home
+  Screen app. A denied permission must be changed in iOS settings; an app
+  cannot revoke it programmatically.
+
+The reference shell exposes these controls in `PlatformControls.tsx`. When
+replacing Field Notes, update the `indexedDbNames` list and keep the control
+available in the app's settings or account surface. Clearing local data does
+not delete server records, the service-worker app shell, or OS notification
+permission.
 
 ## Customize a new project
 
@@ -120,6 +150,8 @@ surface such as a map or video, then handle every safe-area inset yourself.
 6. Confirm both tabs reload once and show the new build.
 7. Confirm old `app-shell-*` caches existed before acceptance and were removed
    only after activation.
+8. In the installed app, pull down from the top and confirm the indicator and
+   update check appear without triggering while scrolled away from the top.
 
 ### Offline cold start on a physical phone
 

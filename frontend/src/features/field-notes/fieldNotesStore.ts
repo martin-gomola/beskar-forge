@@ -1,4 +1,5 @@
 import { apiFetch } from '../../utils/api'
+import { isAppDataClearInProgress } from '../../platform'
 
 export type SyncState = 'synced' | 'pending' | 'conflict'
 
@@ -52,7 +53,7 @@ interface MetaRecord {
   value: string | number
 }
 
-const DATABASE_NAME = 'beskar-forge-field-notes'
+export const FIELD_NOTES_DATABASE_NAME = 'beskar-forge-field-notes'
 const DATABASE_VERSION = 1
 const NOTES_STORE = 'notes'
 const OUTBOX_STORE = 'outbox'
@@ -74,8 +75,12 @@ function transactionComplete(transaction: IDBTransaction): Promise<void> {
 }
 
 function openDatabase(): Promise<IDBDatabase> {
+  if (isAppDataClearInProgress()) {
+    return Promise.reject(new Error('Local data is being cleared.'))
+  }
+
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DATABASE_NAME, DATABASE_VERSION)
+    const request = indexedDB.open(FIELD_NOTES_DATABASE_NAME, DATABASE_VERSION)
     request.onupgradeneeded = () => {
       const database = request.result
       if (!database.objectStoreNames.contains(NOTES_STORE)) {
@@ -88,7 +93,10 @@ function openDatabase(): Promise<IDBDatabase> {
         database.createObjectStore(META_STORE, { keyPath: 'key' })
       }
     }
-    request.onsuccess = () => resolve(request.result)
+    request.onsuccess = () => {
+      request.result.onversionchange = () => request.result.close()
+      resolve(request.result)
+    }
     request.onerror = () => reject(request.error ?? new Error('Could not open local field notes'))
   })
 }

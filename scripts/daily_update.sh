@@ -26,7 +26,7 @@ cd "$PROJECT_ROOT"
 
 # ── Add your daily tasks below ───────────────────────────
 # Example: python3 scripts/update_data.py
-# Example: curl -s http://localhost:8062/api/some-task
+# Example: curl -s http://localhost:8065/api/some-task
 
 echo "No daily tasks configured yet."
 echo "Edit scripts/daily_update.sh to add your tasks."

@@ -59,7 +59,7 @@ flowchart LR
 
     User -->|Dev: :3021| Vite
     User -->|Prod: :8082| Nginx
-    User -->|API/docs: :8062| API
+    User -->|API/docs: :8065| API
     User <-->|update checks + cached assets| SW
     SW --> Vite
     Vite --> Local
@@ -100,7 +100,7 @@ App-specific concerns should be migrated in gradually and kept modular so they c
 
 - `docker-compose.yml` + `docker-compose.dev.yml` run the backend with live reload and the frontend with the Vite dev server.
 - The frontend is exposed on `http://localhost:3021`.
-- The backend is exposed on `http://localhost:8062`.
+- The backend is exposed on `http://localhost:8065`.
 - Source directories are bind-mounted so frontend and backend changes reload without rebuilding the image.
 
 ### Production-like Local Run
@@ -115,8 +115,10 @@ App-specific concerns should be migrated in gradually and kept modular so they c
 ### Frontend
 
 - `frontend/src/App.tsx` renders the platform shell and the update banner.
+- `frontend/src/components/PullToRefresh.tsx` exposes a touch pull gesture that checks for waiting service-worker updates.
 - `frontend/src/features/field-notes/FieldNotesScreen.tsx` demonstrates local-first capture, sync status, and conflict recovery.
 - `frontend/src/features/field-notes/fieldNotesStore.ts` owns IndexedDB records, the mutation outbox, the sync cursor, and device identity.
+- `frontend/src/platform/` owns app-wide local-data clearing and explicit notification helpers that new features can reuse.
 - `frontend/src/main.tsx` bootstraps React and registers the service worker in production.
 - `frontend/src/hooks/useServiceWorkerUpdate.ts` detects a waiting worker, applies accepted updates, and guards cross-tab reloads.
 - `frontend/public/sw.js` manages the app-shell cache and user-controlled update activation.
@@ -197,6 +199,10 @@ renamed copies can coexist.
 5. User acceptance sends `SKIP_WAITING` to the waiting worker.
 6. The worker activates, cleans only old app caches, and claims clients.
 7. Each open tab observes the controller change and reloads once.
+
+On touch interfaces, pulling down from the top of the page invokes the same
+update check and leaves activation under the existing user-controlled **Update
+now** action.
 
 ## Source of Truth
 

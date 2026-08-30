@@ -10,7 +10,7 @@
  *
  * Resolution order:
  *   1. `VITE_API_URL` at build time (Render, any split deploy).
- *   2. `http://localhost:8062` when running on localhost (dev).
+ *   2. `http://localhost:8065` when running on localhost (dev).
  *   3. Empty string -> same-origin (self-hosted nginx-proxied Docker).
  *
  * See docs/RENDER.md ("The relative-fetch trap").
@@ -24,7 +24,7 @@ function resolveBaseUrl(): string {
   if (typeof window !== 'undefined') {
     const host = window.location.hostname
     if (host === 'localhost' || host === '127.0.0.1') {
-      return 'http://localhost:8062'
+      return 'http://localhost:8065'
     }
   }
 

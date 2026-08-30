@@ -19,3 +19,24 @@ cases:
       expectations:
         - "Rejects blanket API caching without freshness, invalidation, and conflict behavior."
         - "Proposes the smallest explicit offline contract for the affected data."
+  - name: install_prompt_platform_fallback
+    prompt: "Add an Install App button that works on Chrome desktop and iPhone."
+    rubric:
+      expectations:
+        - "Uses feature detection for beforeinstallprompt and does not assume it exists on iOS Safari."
+        - "Keeps a browser or OS installation instruction fallback and invokes installation from user intent."
+        - "Checks the manifest, HTTPS or localhost context, install state, and installed-mode behavior."
+  - name: api_offline_ownership
+    prompt: "Make the FastAPI data available offline in the service worker."
+    rubric:
+      expectations:
+        - "Separates cached app-shell availability from server-data freshness and feature-owned IndexedDB state."
+        - "Routes API calls through the repository API helper and distinguishes retryable reads from mutations."
+        - "Requires an explicit schema, mutation, conflict, and recovery contract before caching or queueing data."
+  - name: release_validation_matrix
+    prompt: "Ship a PWA update and prove it works on phones."
+    rubric:
+      expectations:
+        - "Validates generated manifest, icons, precache, headers, and waiting-worker update behavior."
+        - "Tests browser and installed fallbacks, warm offline start, reconnect, and two-tab activation."
+        - "Requires a physical iOS cold-launch check for iOS layout or storage claims, or reports the gap."

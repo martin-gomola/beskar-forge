@@ -104,7 +104,7 @@ For a complete feature built from this template, see the [Garden Planner
 reference application](https://github.com/martin-gomola/garden-planner).
 
 The backend API documentation is available at
-[http://localhost:8062/api/docs](http://localhost:8062/api/docs).
+[http://localhost:8065/api/docs](http://localhost:8065/api/docs).
 
 ## Start your own project
 
@@ -118,8 +118,10 @@ If you prefer to customize it yourself:
 1. Change the app name and description in
    `frontend/src/config/platform.ts`, `frontend/index.html`, and
    `frontend/public/manifest.json`.
-   2. Replace `frontend/src/features/field-notes/FieldNotesScreen.tsx` with your first screen,
-      or keep its local-first storage pattern when the feature needs offline data.
+2. Replace `frontend/src/features/field-notes/FieldNotesScreen.tsx` with your first screen,
+   or keep its local-first storage pattern when the feature needs offline data.
+   Keep `frontend/src/platform/` and `PlatformControls.tsx` for shared local-data
+   clearing and explicit notification permission handling.
 3. Add your API route under `backend/api/` and register it in
    `backend/app_factory.py`.
 4. Run `make check`.

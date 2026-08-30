@@ -194,7 +194,7 @@ build (see "Pre-populating demo data" above).
 Render injects `$PORT` and expects the container to bind to it. The
 template's `backend/Dockerfile` honors `${PORT:-8060}` so the same
 image works on Render and on local Docker Compose. Compose maps host
-port `8062` to the container's internal port `8060` by default.
+port `8065` to the container's internal port `8060` by default.
 
 Don't hard-code `8060` in your `CMD`. If you add a custom entrypoint,
 forward `$PORT` to uvicorn.

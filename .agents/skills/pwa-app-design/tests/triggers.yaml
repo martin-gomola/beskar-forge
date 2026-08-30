@@ -6,12 +6,17 @@ should_trigger:
   - "The service worker keeps serving the old deployment"
   - "Audit Add to Home Screen and cold-start behavior"
   - "Content overlaps the notch and home indicator"
+  - "Add an install button with an iOS fallback"
+  - "Make the API usable offline without stale data"
+  - "Check deep links and the PWA offline recovery flow"
+  - "Validate the PWA update on two tabs and a phone"
 should_not_trigger:
   - "Fix the spacing on this desktop-only button"
   - "Add a FastAPI calculation endpoint"
   - "Review this backend diff before merge"
   - "Deploy the Docker containers"
   - "Add a Postgres database"
+  - "Add a generic desktop-only React table"
 threshold:
   min_tpr: 0.85
   max_fpr: 0.10

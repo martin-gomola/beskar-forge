@@ -51,6 +51,7 @@ project/
 │   │   ├── App.tsx
 │   │   ├── main.tsx                  # registers SW in production
 │   │   ├── components/
+│   │   ├── platform/                  # shared storage and notification lifecycle
 │   │   ├── hooks/useServiceWorkerUpdate.ts
 │   │   └── utils/version.ts
 │   ├── public/sw.js                   # build-version-stamped
@@ -75,7 +76,7 @@ project/
 
 ```bash
 make setup          # First-time setup
-make dev            # Live reload, frontend on :3021, backend on :8062
+make dev            # Live reload, frontend on :3021, backend on :8065
 make doctor         # Diagnose env/ports/docker/CORS BEFORE debugging
 make stop / restart / logs
 make rf / rb        # Restart one service
@@ -103,7 +104,7 @@ make check          # Build frontend + run backend tests
 | Service  | Dev URL              | Prod URL              |
 |----------|----------------------|-----------------------|
 | Frontend | http://localhost:3021 | http://localhost:8082 |
-| Backend  | http://localhost:8062 | http://localhost:8062 |
+| Backend  | http://localhost:8065 | http://localhost:8065 |
 
 ## Environment Variables
 
@@ -116,7 +117,7 @@ Source of truth: [`config/env.example`](./config/env.example). Key vars:
 | `TRUSTED_HOSTS` | Hostnames the FastAPI middleware trusts. Bare hosts only, no scheme. | `localhost,127.0.0.1` |
 | `LOG_LEVEL` | Python logging level | `INFO` |
 | `DEV_FRONTEND_PORT` | Vite development host port | `3021` |
-| `BACKEND_PORT` / `FRONTEND_PORT` | Production-shaped host port overrides | `8062` / `8082` |
+| `BACKEND_PORT` / `FRONTEND_PORT` | Production-shaped host port overrides | `8065` / `8082` |
 
 `make doctor` validates key drift, value shape, ports, Docker Compose support,
 and the rendered Compose model. The API prefix is the fixed invariant `/api`.
@@ -160,7 +161,7 @@ in addition to the self-hosted Docker workflow. Non-obvious rules:
   through `frontend/src/utils/api.ts` (or your axios instance built on
   `API_BASE_URL` from that module).
 - The backend Dockerfile listens on internal port 8060 and honors `$PORT`
-  when Render injects it. Local Compose maps host port 8062 to that internal
+  when Render injects it. Local Compose maps host port 8065 to that internal
   port.
 - `.dockerignore` allow-list MUST mirror `.gitignore` allow-list
   whenever runtime data is selectively committed; otherwise the image

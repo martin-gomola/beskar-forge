@@ -32,7 +32,7 @@ services:
       - NODE_ENV=development
       # Browser-facing URL. Docker's `backend` hostname is not resolvable by
       # the user's browser, so expose the configured host port here.
-      - VITE_API_URL=http://localhost:${BACKEND_PORT:-8062}
+      - VITE_API_URL=http://localhost:${BACKEND_PORT:-8065}
       # Vite itself runs inside Compose and can use the service hostname.
       - VITE_DEV_API_TARGET=http://backend:8060
       - CHOKIDAR_USEPOLLING=true

@@ -9,7 +9,7 @@ services:
       - PYTHONPATH=/app
       - PYTHONUNBUFFERED=1
     ports:
-      - "${BACKEND_PORT:-8062}:8060"
+      - "${BACKEND_PORT:-8065}:8060"
     volumes:
       - ./backend/data:/app/data
     healthcheck:
