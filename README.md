@@ -16,10 +16,9 @@
 
 </div>
 
-The repository ships a small offline-first field-notes workflow so a fresh
-copy demonstrates local persistence, queued changes, and a working
-frontend-to-backend sync request immediately. The fuller Garden Planner
-application now lives in its own repository as another reference build:
+Fresh copies include a small offline-first field-notes workflow with local
+persistence, queued changes, and a working frontend-to-backend sync request.
+The full Garden Planner application lives in its own repository:
 [github.com/martin-gomola/garden-planner](https://github.com/martin-gomola/garden-planner).
 
 ## Why this exists
@@ -29,20 +28,19 @@ interface, a working backend connection, safe configuration, a deployable
 container, and a PWA update path. Rebuilding that foundation for every idea
 made it harder to spend time on the actual user problem.
 
-Beskar Forge turns that foundation into a starter that I can reuse with a
-coding agent or adapt by hand. It is intentionally not a full-stack framework
-or a universal SaaS platform. It is a practical baseline for applications such
-as planners, calculators, internal tools, and homelab utilities.
+I use Beskar Forge as a starter with a coding agent or adapt it by hand. It is
+not a full-stack framework or a universal SaaS platform. It is a practical
+baseline for planners, calculators, internal tools, and homelab utilities.
 
-It keeps the foundation visible: the defaults, trade-offs, and deployment and
-update details that are easy to overlook when starting a new project.
+The repository keeps the defaults, trade-offs, deployment details, and update
+behavior visible when starting a new project.
 
 The path from an application idea to a focused, installable tool is:
 
 **agent prompt → focused workflow → PWA → API → Docker deployment**
 
-It fits small applications where speed and portability matter more than
-framework complexity.
+It fits small applications where speed and portability matter more than a
+large framework.
 
 ## What you need
 
@@ -91,8 +89,8 @@ less common commands.
 
 ## The reference workflow
 
-The included Field Notes workflow demonstrates the platform boundary with a
-small, useful domain flow:
+The included Field Notes workflow shows how the starter handles a small domain
+feature:
 
 - an installable PWA with user-controlled update handling;
 - local-first note capture backed by IndexedDB;
@@ -108,10 +106,9 @@ The backend API documentation is available at
 
 ## Start your own project
 
-The easiest option is to give [`SETUP_PROMPT.md`](./SETUP_PROMPT.md) to your
-coding agent. Add your app name, destination folder, and first feature. The
-agent will copy the template, rename it, run the checks, and report what is
-ready.
+Give [`SETUP_PROMPT.md`](./SETUP_PROMPT.md) to your coding agent. Add your app
+name, destination folder, and first feature. The agent copies the template,
+renames it, runs the checks, and reports what is ready.
 
 If you prefer to customize it yourself:
 
